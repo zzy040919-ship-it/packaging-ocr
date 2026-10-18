@@ -1,0 +1,132 @@
+{
+  "fields": {
+    "production_date": {
+      "value": null,
+      "status": "MISSING",
+      "reason": "未找到字段",
+      "candidates": []
+    },
+    "batch": {
+      "raw": "A260428B05",
+      "value": "A260428B05",
+      "status": "VALID",
+      "reason": "符合配置的批次格式",
+      "confidence": 0.988974,
+      "candidates": [
+        {
+          "raw": "A260428B05",
+          "value": "A260428B05",
+          "status": "VALID",
+          "reason": "符合配置的批次格式",
+          "confidence": 0.988974
+        }
+      ]
+    }
+  },
+  "decision": "REVIEW",
+  "lines": [
+    {
+      "text": "NFG:2026.0428",
+      "confidence": 0.970992,
+      "box": [
+        [
+          65.0,
+          64.0
+        ],
+        [
+          365.0,
+          64.0
+        ],
+        [
+          365.0,
+          99.0
+        ],
+        [
+          65.0,
+          99.0
+        ]
+      ]
+    },
+    {
+      "text": "LOT:A260428B05",
+      "confidence": 0.988974,
+      "box": [
+        [
+          63.0,
+          134.0
+        ],
+        [
+          387.0,
+          134.0
+        ],
+        [
+          387.0,
+          173.0
+        ],
+        [
+          63.0,
+          173.0
+        ]
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "text": "NFG:2026.0428",
+      "confidence": 0.970992
+    },
+    {
+      "text": "LOT:A260428B05",
+      "confidence": 0.988974
+    }
+  ],
+  "variant": "raw",
+  "conflicts": [],
+  "attempts": [
+    {
+      "variant": "raw",
+      "fields": {
+        "production_date": {
+          "value": null,
+          "status": "MISSING",
+          "reason": "未找到字段",
+          "candidates": []
+        },
+        "batch": {
+          "raw": "A260428B05",
+          "value": "A260428B05",
+          "status": "VALID",
+          "reason": "符合配置的批次格式",
+          "confidence": 0.988974,
+          "candidates": [
+            {
+              "raw": "A260428B05",
+              "value": "A260428B05",
+              "status": "VALID",
+              "reason": "符合配置的批次格式",
+              "confidence": 0.988974
+            }
+          ]
+        }
+      },
+      "texts": [
+        "NFG:2026.0428",
+        "LOT:A260428B05"
+      ]
+    }
+  ],
+  "elapsed_ms": 646.94,
+  "config": {
+    "mode": "raw",
+    "roi": null,
+    "angle": 0,
+    "threshold": 0.8,
+    "batch_pattern": "[A-Z0-9][A-Z0-9-]{3,23}",
+    "cpu_threads": 4
+  },
+  "model": {
+    "det": "PP-OCRv5_mobile_det",
+    "rec": "PP-OCRv5_mobile_rec",
+    "device": "cpu"
+  }
+}

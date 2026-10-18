@@ -1,0 +1,152 @@
+{
+  "fields": {
+    "production_date": {
+      "raw": "2026年07月18日",
+      "value": "2026-07-18",
+      "status": "VALID",
+      "reason": "日历日期有效且有生产日期标签",
+      "confidence": 0.986653,
+      "candidates": [
+        {
+          "raw": "2026年07月18日",
+          "value": "2026-07-18",
+          "status": "VALID",
+          "reason": "日历日期有效且有生产日期标签",
+          "confidence": 0.986653
+        }
+      ]
+    },
+    "batch": {
+      "raw": "A260718B08",
+      "value": "A260718B08",
+      "status": "VALID",
+      "reason": "符合配置的批次格式",
+      "confidence": 0.990402,
+      "candidates": [
+        {
+          "raw": "A260718B08",
+          "value": "A260718B08",
+          "status": "VALID",
+          "reason": "符合配置的批次格式",
+          "confidence": 0.990402
+        }
+      ]
+    }
+  },
+  "decision": "PASS",
+  "lines": [
+    {
+      "text": "生产日期: 2026年07月18日",
+      "confidence": 0.986653,
+      "box": [
+        [
+          63.0,
+          57.0
+        ],
+        [
+          524.0,
+          59.0
+        ],
+        [
+          524.0,
+          103.0
+        ],
+        [
+          63.0,
+          101.0
+        ]
+      ]
+    },
+    {
+      "text": "批号:A260718B08",
+      "confidence": 0.990402,
+      "box": [
+        [
+          62.0,
+          132.0
+        ],
+        [
+          388.0,
+          129.0
+        ],
+        [
+          389.0,
+          172.0
+        ],
+        [
+          63.0,
+          175.0
+        ]
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "text": "生产日期: 2026年07月18日",
+      "confidence": 0.986653
+    },
+    {
+      "text": "批号:A260718B08",
+      "confidence": 0.990402
+    }
+  ],
+  "variant": "raw",
+  "conflicts": [],
+  "attempts": [
+    {
+      "variant": "raw",
+      "fields": {
+        "production_date": {
+          "raw": "2026年07月18日",
+          "value": "2026-07-18",
+          "status": "VALID",
+          "reason": "日历日期有效且有生产日期标签",
+          "confidence": 0.986653,
+          "candidates": [
+            {
+              "raw": "2026年07月18日",
+              "value": "2026-07-18",
+              "status": "VALID",
+              "reason": "日历日期有效且有生产日期标签",
+              "confidence": 0.986653
+            }
+          ]
+        },
+        "batch": {
+          "raw": "A260718B08",
+          "value": "A260718B08",
+          "status": "VALID",
+          "reason": "符合配置的批次格式",
+          "confidence": 0.990402,
+          "candidates": [
+            {
+              "raw": "A260718B08",
+              "value": "A260718B08",
+              "status": "VALID",
+              "reason": "符合配置的批次格式",
+              "confidence": 0.990402
+            }
+          ]
+        }
+      },
+      "texts": [
+        "生产日期: 2026年07月18日",
+        "批号:A260718B08"
+      ]
+    }
+  ],
+  "elapsed_ms": 757.44,
+  "config": {
+    "mode": "raw",
+    "roi": null,
+    "angle": 0,
+    "threshold": 0.8,
+    "batch_pattern": "[A-Z0-9][A-Z0-9-]{3,23}",
+    "cpu_threads": 4
+  },
+  "model": {
+    "det": "PP-OCRv5_mobile_det",
+    "rec": "PP-OCRv5_mobile_rec",
+    "device": "cpu"
+  }
+}

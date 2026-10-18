@@ -1,0 +1,6 @@
+paddlepaddle==3.2.0
+paddleocr==3.2.0
+paddlex==3.2.1
+Pillow==11.3.0
+numpy==2.4.6
+opencv-contrib-python==4.10.0.84

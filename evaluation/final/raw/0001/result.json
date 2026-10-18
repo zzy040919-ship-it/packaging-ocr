@@ -1,0 +1,175 @@
+{
+  "fields": {
+    "production_date": {
+      "raw": "2026.04.28",
+      "value": "2026-04-28",
+      "status": "LOW_CONFIDENCE",
+      "reason": "识别置信度不足",
+      "confidence": 0.299725,
+      "candidates": [
+        {
+          "raw": "2026.04.28",
+          "value": "2026-04-28",
+          "status": "LOW_CONFIDENCE",
+          "reason": "识别置信度不足",
+          "confidence": 0.299725
+        }
+      ]
+    },
+    "batch": {
+      "raw": "A260428B05",
+      "value": "A260428B05",
+      "status": "VALID",
+      "reason": "符合配置的批次格式",
+      "confidence": 0.991967,
+      "candidates": [
+        {
+          "raw": "A260428B05",
+          "value": "A260428B05",
+          "status": "VALID",
+          "reason": "符合配置的批次格式",
+          "confidence": 0.991967
+        }
+      ]
+    }
+  },
+  "decision": "REVIEW",
+  "lines": [
+    {
+      "text": "-",
+      "confidence": 0.299725,
+      "box": [
+        [
+          403.0,
+          51.0
+        ],
+        [
+          908.0,
+          0.0
+        ],
+        [
+          943.0,
+          285.0
+        ],
+        [
+          476.0,
+          390.0
+        ]
+      ]
+    },
+    {
+      "text": "MFG: 2026.04.28",
+      "confidence": 0.991394,
+      "box": [
+        [
+          74.0,
+          231.0
+        ],
+        [
+          368.0,
+          168.0
+        ],
+        [
+          378.0,
+          210.0
+        ],
+        [
+          84.0,
+          273.0
+        ]
+      ]
+    },
+    {
+      "text": "LOT: A260428B05",
+      "confidence": 0.991967,
+      "box": [
+        [
+          90.0,
+          300.0
+        ],
+        [
+          404.0,
+          234.0
+        ],
+        [
+          413.0,
+          276.0
+        ],
+        [
+          99.0,
+          342.0
+        ]
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "text": "MFG: 2026.04.28 -",
+      "confidence": 0.299725
+    },
+    {
+      "text": "LOT: A260428B05",
+      "confidence": 0.991967
+    }
+  ],
+  "variant": "raw",
+  "conflicts": [],
+  "attempts": [
+    {
+      "variant": "raw",
+      "fields": {
+        "production_date": {
+          "raw": "2026.04.28",
+          "value": "2026-04-28",
+          "status": "LOW_CONFIDENCE",
+          "reason": "识别置信度不足",
+          "confidence": 0.299725,
+          "candidates": [
+            {
+              "raw": "2026.04.28",
+              "value": "2026-04-28",
+              "status": "LOW_CONFIDENCE",
+              "reason": "识别置信度不足",
+              "confidence": 0.299725
+            }
+          ]
+        },
+        "batch": {
+          "raw": "A260428B05",
+          "value": "A260428B05",
+          "status": "VALID",
+          "reason": "符合配置的批次格式",
+          "confidence": 0.991967,
+          "candidates": [
+            {
+              "raw": "A260428B05",
+              "value": "A260428B05",
+              "status": "VALID",
+              "reason": "符合配置的批次格式",
+              "confidence": 0.991967
+            }
+          ]
+        }
+      },
+      "texts": [
+        "-",
+        "MFG: 2026.04.28",
+        "LOT: A260428B05"
+      ]
+    }
+  ],
+  "elapsed_ms": 921.49,
+  "config": {
+    "mode": "raw",
+    "roi": null,
+    "angle": 0,
+    "threshold": 0.8,
+    "batch_pattern": "[A-Z0-9][A-Z0-9-]{3,23}",
+    "cpu_threads": 4
+  },
+  "model": {
+    "det": "PP-OCRv5_mobile_det",
+    "rec": "PP-OCRv5_mobile_rec",
+    "device": "cpu"
+  }
+}
