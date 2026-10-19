@@ -1,8 +1,7 @@
 # 基于 PaddleOCR 的包装喷码识别系统
 
-个人/课程项目，面向单个包装喷码区域的生产日期与批次号识别。使用 Python、OpenCV、PaddleOCR 3.x 和 Tkinter，支持 CPU。已有代码、桌面界面、命令行、合成样例、评估工具和回归测试；真实包装效果需用自己的实拍数据检验。
 
-交付导航：[实测报告](实测报告.md) · [演示视频](demo/demo.mp4) · [演示 GIF](demo/demo.gif) · [逐图评估数据](evaluation/final/metrics.json)。自动模式在 26 张合成测试图上的双字段匹配为 24/26，具体退化与限制也记录在报告中。
+交付导航：[历史实测报告](实测报告.md) · [历史演示视频](demo/demo.mp4) · [历史演示 GIF](demo/demo.gif) · [历史逐图评估数据](evaluation/final/metrics.json)。历史版本自动模式在 26 张合成测试图上的双字段匹配为 24/26；当前修订复测见 [新评估数据](evaluation/revision-20261019/metrics.json)，不覆盖历史记录。
 
 ![倾斜喷码样例的实际识别结果](demo/preview.png)
 
@@ -45,19 +44,38 @@ python main.py your_photo.jpg --batch-pattern "[A-Z]{2}[0-9]{8}" --threshold 0.8
 
 ## 处理流程与设计取舍
 
-图像读取与 EXIF 纠正 → 可选 ROI 与旋转 → 限制最长边 1600 → 文本检测/识别 → 相邻文本框组行 → 字段提取与规则检查 → 原图坐标还原 → 标注与 JSON。
+图像读取与 EXIF 纠正 → 可选 ROI 与旋转 → 限制最长边（可配，默认 1600）→ 文本检测/识别 → 相邻文本框组行 → 字段提取与规则检查 → 原图坐标还原 → 标注与 JSON。
 
 - `raw`：原始图像，是基线。
 - `enhance`：灰度化、CLAHE 局部对比度增强、轻度锐化。
 - `auto`：先跑原图，字段需复核时才根据文本框方向估计 ±20° 内倾斜，再增强重试。保留两轮候选；两轮字段值冲突则需复核。自动模式最多两次 OCR。
 
-使用官方预训练 `PP-OCRv5_mobile_det`、`PP-OCRv5_mobile_rec`，没有训练或微调模型。关闭文档去弯曲和方向分类；CPU 4 线程，关闭 MKL-DNN，以本项目的实测环境为准。配置对应 [PaddleOCR 3.2.0 官方 Python 接口](https://github.com/PaddlePaddle/PaddleOCR/blob/v3.2.0/docs/version3.x/pipeline_usage/OCR.en.md)。
+使用官方预训练 `PP-OCRv5_mobile_det`、`PP-OCRv5_mobile_rec`，没有训练或微调模型。关闭文档去弯曲和方向分类；默认设备 `auto`、CPU 线程自动选择（不超过 8）、MKL-DNN 关闭以保持保守兼容。4 线程只是旧版评估参数，不是硬件要求。参数对应 [PaddleOCR 3.2.0 官方 Python 接口](https://github.com/PaddlePaddle/PaddleOCR/blob/v3.2.0/docs/version3.x/pipeline_usage/OCR.en.md)。
+
+## 不绑定某款 CPU 的运行设置
+
+界面新增“设备 / CPU 线程 / 处理最长边 / MKL-DNN”，命令行、评估和界面共享这些设置：
+
+```powershell
+# 自动：有可用 Paddle CUDA 设备时使用，否则 CPU；记录实际设备和原因
+python main.py samples/images/s04_clean.png --device auto --threads 0
+# 较低负载起点：不是推荐硬件门槛，分辨率降低可能影响小字识别
+python gui.py --device cpu --threads 2 --max-side 960
+# 自己准备好 Paddle GPU 环境后才可使用；强制 GPU 不可用会报错，不伪装成功
+python main.py your_photo.jpg --device gpu:0
+# 可选 CPU 加速，需要在本机比较兼容性、结果与耗时
+python main.py your_photo.jpg --device cpu --threads 4 --mkldnn
+```
+
+`--threads 0` 根据逻辑 CPU 数选择 1～8 线程；可手动指定 1～64，不意味着线程越多越快。`--max-side` 支持 256～4096，建议先裁准 ROI，再比较分辨率。`--device auto` 检测 CUDA 构建和可见设备；GPU 初始化失败时回退 CPU，并写入 `config.runtime` 与会话摘要。**只有自动模式允许回退，强制 GPU 失败会报错。**
+
+随附依赖是 CPU 基线环境。GPU 需要另建环境，按 [Paddle 官方安装说明](https://www.paddlepaddle.org.cn/install/quick) 选择匹配的操作系统、驱动/CUDA 与 GPU 轮子；不要把 CPU/GPU 版 Paddle 混装，也不要对 GPU 环境直接安装包含 CPU Paddle 的完整锁文件。本次没有 GPU 硬件实测；核显不等于 CUDA GPU。不检查 Intel/AMD 品牌，能否安装依赖仍取决于操作系统与 CPU 架构；未验证所有平台。
 
 为便于学生独立解释与运行，界面使用 Python 自带 Tkinter，评估/配置使用标准库，不需要 Web 服务或数据库。
 
 ## 业务规则
 
-生产日期支持 `YYYYMMDD`、`YYYY-MM-DD`、`YYYY.MM.DD`、`YYYY/MM/DD`、`YYYY年MM月DD日`（年份范围 1900–2099）；`datetime.date` 检查实际日历日期。识别中文标签“生产日期/生产时间/制造日期”和英文 `MFG/MFD/PROD`。有效期、包装日期不当作生产日期；无标签日期保留为候选并要求复核。
+生产日期支持 `YYYYMMDD`、`YYYY-MM-DD`、`YYYY.MM.DD`、`YYYY/MM/DD`、`YYYY年MM月DD日`（年份范围 1900–2099），允许分隔符周围空格；数字分隔符要求一致，拒绝把 `2026.10.18.99` 截成有效日期。`datetime.date` 检查实际日历日期。识别中文标签“生产日期/生产时间/制造日期”和英文 `MFG/MFD/PROD`。有效期、包装日期不当作生产日期；无标签日期保留为候选并要求复核。非有限或越界置信度会报错，不能当作高置信度结果。
 
 批次标签支持 `LOT/BATCH/批号/批次/批次号/生产批号/产品批号`，默认正则 `[A-Z0-9][A-Z0-9-]{3,23}`，即 4–24 位大写字母、数字或连字符，首位不可为连字符。批次格式没有统一行业标准，须按目标产品调整。全角字符与大小写会规范化；不自动把 O 改成 0、I 改成 1。
 
@@ -83,7 +101,7 @@ python evaluate.py samples/labels.jsonl --split dev --output runs/eval_dev
 python evaluate.py samples/labels.jsonl --split test --output runs/eval_test
 ```
 
-评估输出目录必须不存在。默认比较 raw/auto；所有识别和读图失败计入准确率分母。报告保存 Python/包版本、机器信息、数据标签 SHA256、参数、逐图预测、按条件统计和模型初始化耗时。
+评估输出目录必须不存在。默认比较 raw/auto；所有识别和读图失败计入准确率分母。预热图片损坏时记录警告并尝试下一张，不中断整次评估；预热是否完成写入报告。规范化后指向同一文件的重复路径也会拒绝。报告保存 Python/包版本、机器信息、数据标签 SHA256、运行设备、参数、逐图预测、按条件统计和模型初始化耗时。
 
 指标定义：
 
@@ -104,12 +122,20 @@ python evaluate.py samples/labels.jsonl --split test --output runs/eval_test
 
 图像路径相对标签文件所在目录。可加 `roi:[100,200,800,300]`、`angle:0`。`text` 标注实际送入 OCR 区域的全部文字；若标注 ROI，需在开发集固定标注规则，报告结果时注明人工 ROI。不存在/无法确认的字段用 JSON `null`，decision 设 REVIEW。先人工核对标签，再评估。
 
+## 面试与简历
+
+可写的事实是“集成预训练 OCR，并独立实现预处理、字段校验、复核逻辑、界面和评估”，不是“训练了工业 OCR 模型”。完成真实数据评估后，用下面模板替换方括号：
+
+> 个人项目：基于 PaddleOCR 的包装喷码识别系统。使用 OpenCV 实现 ROI、倾斜纠正与对比度增强，提取生产日期和批次号，加入日历校验、可配置正则与低置信度复核；构建按包装分组的 [N] 张实拍测试集，日期/批次完全匹配率分别为 [X]/[Y]，误通过 [K] 张，CPU [型号/线程数] 下平均/P95 处理耗时 [A]/[B] ms，提供桌面演示与批量 JSON 导出。
+
+讲解顺序：为何使用预训练模型 → 原图基线 → 哪些失败由图像造成、哪些由规则造成 → 预处理在哪些条件改善或退化 → 为什么选择复核 → 数据如何防泄漏。实测没有改善也应如实记录，并用失败图说明原因。
+
 ## 已知局限与后续方向
 
 1. 目标场景是单个包装、单个喷码区域；大量说明文字、并排多个商品、标签与数值跨行时，应先用 ROI 限定。当前组行只合并相邻同一行文本框。
 2. 自动纠偏依赖首轮检测到文本框；90°/180°、严重透视或曲面需要手动旋转、固定拍摄或单独标定/矫正。
 3. 锐化不能还原严重失焦、反光遮挡、完全缺墨；网格断墨合成图不能替代真实点阵喷码测试。
-4. 中文标签识别错可能使字段缺失；日期字符间异常空格、特殊日期格式目前需要扩展解析。
+4. 中文标签识别错可能使字段缺失；虽然支持日期分隔符周围空格，但数字内部断开、特殊日期格式仍可能缺失，不做 O/0 等无证据修复。
 5. 自动模式若首轮已 PASS 就不重试，可能漏掉高置信度的错误读数。应通过真实测试集统计误通过，必要时接入预期批次/日期核对。
 6. 没有接入相机、PLC、在线剔除、模型训练或真实工业数据，不能据此声称已经部署生产线。
 

@@ -1,13 +1,15 @@
 """保守的喷码字段提取；格式符合规则不等于读数一定正确。仅依赖标准库。"""
 import re
+import math
 import unicodedata
 from datetime import date
 
 DEFAULT_BATCH_PATTERN = r"[A-Z0-9][A-Z0-9-]{3,23}"
 DATE_RE = re.compile(
     r"(?<![A-Z0-9])(?P<y>(?:19|20)\d{2})(?:"
-    r"(?P<sep>[-./年])(?P<m>\d{1,2})[-./月](?P<d>\d{1,2})日?"
-    r"|(?P<cm>\d{2})(?P<cd>\d{2}))(?![A-Z0-9])"
+    r"\s*(?P<sep>[-./])\s*(?P<m>\d{1,2})\s*(?P=sep)\s*(?P<d>\d{1,2})"
+    r"|\s*年\s*(?P<zm>\d{1,2})\s*月\s*(?P<zd>\d{1,2})\s*日?"
+    r"|(?P<cm>\d{2})(?P<cd>\d{2}))(?![A-Z0-9]|\s*[-./]\s*\d)"
 )
 LABEL_RE = re.compile(
     r"生产日期|生产时间|制造日期|包装日期|有效期至|保质期至|到期日期|有效日期|失效日期|"
@@ -42,6 +44,8 @@ def extract_fields(rows, threshold=0.8, batch_pattern=DEFAULT_BATCH_PATTERN):
     dates, batches = [], []
     for row in rows:
         text, confidence = normalize(row["text"]), float(row["confidence"])
+        if not math.isfinite(confidence) or not 0 <= confidence <= 1:
+            raise ValueError("识别置信度必须是 0～1 的有限数")
         batch_matches = list(BATCH_RE.finditer(text))
         for match in DATE_RE.finditer(text):
             if any(b.start(1) <= match.start() < b.end(1) for b in batch_matches):
@@ -53,7 +57,7 @@ def extract_fields(rows, threshold=0.8, batch_pattern=DEFAULT_BATCH_PATTERN):
                 continue
             raw = match.group()
             try:
-                value = date(int(match["y"]), int(match["m"] or match["cm"]), int(match["d"] or match["cd"])).isoformat()
+                value = date(int(match["y"]), int(match["m"] or match["zm"] or match["cm"]), int(match["d"] or match["zd"] or match["cd"])).isoformat()
                 status, reason = "VALID", "日历日期有效且有生产日期标签"
             except ValueError:
                 value, status, reason = None, "INVALID", "日期不存在，例如月份越界或非闰年 2 月 29 日"

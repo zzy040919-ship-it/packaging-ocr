@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 
-from pipeline import Reader, read_image, save_result
+from pipeline import Reader, read_image, runtime_arguments, save_result
 from rules import normalize
 
 
@@ -34,8 +34,8 @@ def metrics(records):
         eligible = [r for r in records if r["expected"][field] is not None]
         result[field + "_exact_match"] = sum(r.get(field) == r["expected"][field] for r in eligible) / len(eligible) if eligible else None
         result[field + "_denominator"] = len(eligible)
-    result["both_fields_exact_match"] = sum("error" not in r and all(r.get(f) == r["expected"][f] for f in ("production_date", "batch")) for r in records) / len(records)
-    result["decision_accuracy"] = sum(r.get("decision") == r["expected"]["decision"] for r in records) / len(records)
+    result["both_fields_exact_match"] = sum("error" not in r and all(r.get(f) == r["expected"][f] for f in ("production_date", "batch")) for r in records) / len(records) if records else None
+    result["decision_accuracy"] = sum(r.get("decision") == r["expected"]["decision"] for r in records) / len(records) if records else None
     passed = [r for r in records if r.get("decision") == "PASS"]
     unsafe = [r for r in passed if r["expected"]["decision"] != "PASS" or any(r.get(f) != r["expected"][f] for f in ("production_date", "batch"))]
     result["pass_count"], result["wrong_pass_count"] = len(passed), len(unsafe)
@@ -48,6 +48,18 @@ def metrics(records):
     return result
 
 
+def warm_up(reader, labels, directory):
+    warnings = []
+    for label in labels:
+        try:
+            image = read_image(directory / label["image"])
+            reader.recognize(image, mode="raw", roi=label.get("roi"), angle=label.get("angle", 0))
+            return {"completed": True, "image": label["image"], "warnings": warnings}
+        except Exception as exc:
+            warnings.append({"image": label["image"], "error": f"{type(exc).__name__}: {exc}"})
+    return {"completed": False, "image": None, "warnings": warnings}
+
+
 def load_labels(path, split):
     rows = [json.loads(line) for line in path.read_text(encoding="utf-8-sig").splitlines() if line.strip()]
     groups, images = {}, set()
@@ -55,9 +67,10 @@ def load_labels(path, split):
         for key in ("image", "group", "split", "source", "condition", "text", "production_date", "batch", "decision"):
             if key not in row:
                 raise ValueError(f"标签缺少 {key}: {row}")
-        if row["image"] in images:
+        canonical = (path.parent / row["image"]).resolve()
+        if canonical in images:
             raise ValueError("标签包含重复图片")
-        images.add(row["image"])
+        images.add(canonical)
         if groups.setdefault(row["group"], row["split"]) != row["split"]:
             raise ValueError("同一包装/合成源的变体跨集合，存在数据泄漏")
         if row["decision"] not in {"PASS", "REVIEW"}:
@@ -75,15 +88,13 @@ def main():
     parser.add_argument("--split", choices=["dev", "test"], default="test")
     parser.add_argument("--modes", nargs="+", choices=["raw", "enhance", "auto"], default=["raw", "auto"])
     parser.add_argument("--threshold", type=float, default=0.8)
-    parser.add_argument("--threads", type=int, default=4)
+    runtime_arguments(parser)
     args = parser.parse_args()
     all_rows, selected = load_labels(args.labels, args.split)
     args.output.mkdir(parents=True, exist_ok=False)
-    reader = Reader(args.threads)
+    reader = Reader(args.threads, args.device, args.mkldnn, args.max_side)
     # 只预热一次，不计入逐图耗时；模型初始化单独记录。
-    warmup = next((r for r in selected if (args.labels.parent / r["image"]).is_file()), None)
-    if warmup:
-        reader.recognize(read_image(args.labels.parent / warmup["image"]), mode="raw")
+    warmup = warm_up(reader, selected, args.labels.parent)
     report = {
         "run_started_utc": datetime.now(timezone.utc).isoformat(),
         "code_sha256": {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in Path(__file__).parent.glob("*.py")},
@@ -91,10 +102,12 @@ def main():
         "split": args.split, "split_counts": dict(Counter(r["split"] for r in all_rows)),
         "source_counts": dict(Counter(r["source"] for r in selected)),
         "platform": platform.platform(), "processor": platform.processor(), "python": platform.python_version(),
-        "packages": {p: importlib.metadata.version(p) for p in ("paddleocr", "paddlepaddle", "paddlex", "numpy", "opencv-contrib-python")},
-        "cpu_threads": args.threads, "threshold": args.threshold, "model_init_ms": reader.init_ms,
+        "packages": {p: importlib.metadata.version(p) for p in ("paddleocr", "paddlex", "numpy", "opencv-contrib-python")},
+        "paddle_version": __import__("paddle").__version__,
+        "cpu_threads": reader.threads, "threshold": args.threshold, "model_init_ms": reader.init_ms,
+        "runtime": reader.runtime_info, "warmup": warmup,
         "timing_scope": "预热后，预处理+OCR+字段解析+坐标还原；不含图像解码、模型初始化、结果写盘；单轮运行",
-        "model": {"det": "PP-OCRv5_mobile_det", "rec": "PP-OCRv5_mobile_rec", "device": "cpu", "enable_mkldnn": False},
+        "model": {"det": "PP-OCRv5_mobile_det", "rec": "PP-OCRv5_mobile_rec", "device": reader.runtime_info["effective_device"], "enable_mkldnn": reader.runtime_info["enable_mkldnn"]},
         "modes": {},
     }
     for mode in dict.fromkeys(args.modes):

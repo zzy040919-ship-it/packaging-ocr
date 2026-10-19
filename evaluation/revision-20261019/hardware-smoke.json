@@ -1,0 +1,21 @@
+{
+  "model_init_ms": 1036.41,
+  "runtime": {
+    "requested_device": "cpu",
+    "effective_device": "cpu",
+    "fallback_reason": null,
+    "cpu_threads_requested": 2,
+    "cpu_threads": 2,
+    "enable_mkldnn": false,
+    "max_side": 640
+  },
+  "files": [
+    {
+      "file": "samples\\images\\s04_clean.png",
+      "decision": "PASS",
+      "production_date": "2026-04-28",
+      "batch": "A260428B05",
+      "elapsed_ms": 845.08
+    }
+  ]
+}

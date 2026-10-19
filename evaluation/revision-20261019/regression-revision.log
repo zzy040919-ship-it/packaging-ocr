@@ -1,0 +1,19 @@
+test_ambiguity_and_no_silent_repair (test_system.SystemTests.test_ambiguity_and_no_silent_repair) ... ok
+test_ambiguous_first_attempt_cannot_be_overridden (test_system.SystemTests.test_ambiguous_first_attempt_cannot_be_overridden) ... ok
+test_calendar_labels_and_confidence (test_system.SystemTests.test_calendar_labels_and_confidence) ... ok
+test_conflicting_retry (test_system.SystemTests.test_conflicting_retry) ... ok
+test_corrupt_warmup_and_empty_metrics (test_system.SystemTests.test_corrupt_warmup_and_empty_metrics) ... ok
+test_dataset_alias_duplicate_rejected (test_system.SystemTests.test_dataset_alias_duplicate_rejected) ... ok
+test_deskew_retry_restores_original_coordinates (test_system.SystemTests.test_deskew_retry_restores_original_coordinates) ... ok
+test_geometry_and_chinese_path (test_system.SystemTests.test_geometry_and_chinese_path) ... ok
+test_gui_runtime_options_and_close_guard (test_system.SystemTests.test_gui_runtime_options_and_close_guard) ... ok
+test_invalid_ocr_output_rejected (test_system.SystemTests.test_invalid_ocr_output_rejected) ... ok
+test_metrics_include_errors (test_system.SystemTests.test_metrics_include_errors) ... ok
+test_partial_dates_spacing_and_nonfinite_confidence (test_system.SystemTests.test_partial_dates_spacing_and_nonfinite_confidence) ... ok
+test_runtime_constructor_and_auto_fallback (test_system.SystemTests.test_runtime_constructor_and_auto_fallback) ... ok
+test_runtime_device_selection (test_system.SystemTests.test_runtime_device_selection) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.888s
+
+OK

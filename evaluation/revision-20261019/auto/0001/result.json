@@ -1,0 +1,203 @@
+{
+  "fields": {
+    "production_date": {
+      "raw": "2026.04.28",
+      "value": "2026-04-28",
+      "status": "VALID",
+      "reason": "日历日期有效且有生产日期标签",
+      "confidence": 0.998662,
+      "candidates": [
+        {
+          "raw": "2026.04.28",
+          "value": "2026-04-28",
+          "status": "VALID",
+          "reason": "日历日期有效且有生产日期标签",
+          "confidence": 0.998662
+        }
+      ]
+    },
+    "batch": {
+      "raw": "A260428B05",
+      "value": "A260428B05",
+      "status": "VALID",
+      "reason": "符合配置的批次格式",
+      "confidence": 0.977514,
+      "candidates": [
+        {
+          "raw": "A260428B05",
+          "value": "A260428B05",
+          "status": "VALID",
+          "reason": "符合配置的批次格式",
+          "confidence": 0.977514
+        }
+      ]
+    }
+  },
+  "decision": "PASS",
+  "lines": [
+    {
+      "text": "MFG: 2026.04.28",
+      "confidence": 0.998662,
+      "box": [
+        [
+          72.98,
+          230.77
+        ],
+        [
+          371.45,
+          168.03
+        ],
+        [
+          380.71,
+          212.07
+        ],
+        [
+          82.23,
+          274.8
+        ]
+      ]
+    },
+    {
+      "text": "LOT: A260428B05",
+      "confidence": 0.977514,
+      "box": [
+        [
+          86.24,
+          303.6
+        ],
+        [
+          407.79,
+          233.96
+        ],
+        [
+          416.84,
+          277.02
+        ],
+        [
+          95.29,
+          346.65
+        ]
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "text": "MFG: 2026.04.28",
+      "confidence": 0.998662
+    },
+    {
+      "text": "LOT: A260428B05",
+      "confidence": 0.977514
+    }
+  ],
+  "variant": "enhance_deskew",
+  "conflicts": [],
+  "attempts": [
+    {
+      "variant": "raw",
+      "fields": {
+        "production_date": {
+          "raw": "2026.04.28",
+          "value": "2026-04-28",
+          "status": "LOW_CONFIDENCE",
+          "reason": "识别置信度不足",
+          "confidence": 0.299725,
+          "candidates": [
+            {
+              "raw": "2026.04.28",
+              "value": "2026-04-28",
+              "status": "LOW_CONFIDENCE",
+              "reason": "识别置信度不足",
+              "confidence": 0.299725
+            }
+          ]
+        },
+        "batch": {
+          "raw": "A260428B05",
+          "value": "A260428B05",
+          "status": "VALID",
+          "reason": "符合配置的批次格式",
+          "confidence": 0.991967,
+          "candidates": [
+            {
+              "raw": "A260428B05",
+              "value": "A260428B05",
+              "status": "VALID",
+              "reason": "符合配置的批次格式",
+              "confidence": 0.991967
+            }
+          ]
+        }
+      },
+      "texts": [
+        "-",
+        "MFG: 2026.04.28",
+        "LOT: A260428B05"
+      ]
+    },
+    {
+      "variant": "enhance_deskew",
+      "fields": {
+        "production_date": {
+          "raw": "2026.04.28",
+          "value": "2026-04-28",
+          "status": "VALID",
+          "reason": "日历日期有效且有生产日期标签",
+          "confidence": 0.998662,
+          "candidates": [
+            {
+              "raw": "2026.04.28",
+              "value": "2026-04-28",
+              "status": "VALID",
+              "reason": "日历日期有效且有生产日期标签",
+              "confidence": 0.998662
+            }
+          ]
+        },
+        "batch": {
+          "raw": "A260428B05",
+          "value": "A260428B05",
+          "status": "VALID",
+          "reason": "符合配置的批次格式",
+          "confidence": 0.977514,
+          "candidates": [
+            {
+              "raw": "A260428B05",
+              "value": "A260428B05",
+              "status": "VALID",
+              "reason": "符合配置的批次格式",
+              "confidence": 0.977514
+            }
+          ]
+        }
+      },
+      "texts": [
+        "MFG: 2026.04.28",
+        "LOT: A260428B05"
+      ]
+    }
+  ],
+  "elapsed_ms": 2971.69,
+  "config": {
+    "mode": "auto",
+    "roi": null,
+    "angle": 0,
+    "threshold": 0.8,
+    "batch_pattern": "[A-Z0-9][A-Z0-9-]{3,23}",
+    "cpu_threads": 4,
+    "runtime": {
+      "requested_device": "auto",
+      "effective_device": "cpu",
+      "fallback_reason": "未检测到可用 Paddle CUDA 设备，使用 CPU",
+      "cpu_threads_requested": 4,
+      "cpu_threads": 4,
+      "enable_mkldnn": false,
+      "max_side": 1600
+    }
+  },
+  "model": {
+    "det": "PP-OCRv5_mobile_det",
+    "rec": "PP-OCRv5_mobile_rec",
+    "device": "cpu"
+  }
+}
